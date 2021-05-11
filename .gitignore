@@ -2,4 +2,6 @@ MATLAB part/sudoku.pdf
 MATLAB part/test.m
 C part/test.c
 C part/test.exe
+C part/ocr.txt
+C part/CellValue.txt
 .vscode
