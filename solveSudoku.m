@@ -1,3 +1,9 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% File: solveSudoku.m
+% Created on 24.3.2021
+% Author: Hadrien Sevel
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 function [M,solvability] = solveSudoku(M,rlevel)
 %SOLVESUDOKU Fonction récursive qui résoud le sudoku
 

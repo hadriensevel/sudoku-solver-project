@@ -1,3 +1,9 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% File: getChoices.m
+% Created on 17.3.2021
+% Author: Hadrien Sevel
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 function [x,y,choices] = getChoices(A,M)
 %GETCHOICES Sélectionne une case avec le moins de possibilités et donne ses
 %cordonnées x et y ainsi que le vecteur choices qui contient les

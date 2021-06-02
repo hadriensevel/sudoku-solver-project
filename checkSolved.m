@@ -1,3 +1,9 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% File: checkSolved.m
+% Created on 17.3.2021
+% Author: Hadrien Sevel
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 function solvability = checkSolved(A)
 %CHECKSOLVED Vérifie si le sudoku est résolu ou non
 %   1 : une seule possibilité pour chaque case, sudoku résolu

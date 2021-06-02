@@ -1,3 +1,9 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% File: dispSudoku.m
+% Created on 3.3.2021
+% Author: Hadrien Sevel
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 function dispSudoku(Initial,Solution,file,NBiterations,recLevel,duration)
 %DISPSUDOKU Crée l'affichage de la grille de sudoku et l'exporte au format PDF
 
@@ -15,6 +21,9 @@ axis equal
 % un case initiale)
 colormap([1,1,1;.9,.9,.9])
 imagesc(0.5,0.5,flip(BoxSolved))
+
+% Adapté depuis une exemple de la documentation MATLAB (fonction drawSudoku):
+% https://www.mathworks.com/help/optim/ug/solve-sudoku-puzzles-via-integer-programming-solver-based.html
 
 % Crée les rectangles de la grille de sudoku
 rectangle('Position',[0,0,9,9],'LineWidth',1.75)
