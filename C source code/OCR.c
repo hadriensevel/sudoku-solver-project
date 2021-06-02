@@ -1,6 +1,6 @@
 /************************************************
  * File: OCR.c
- * Created on 1.4.2021
+ * Created on 2.4.2021
  * Author: Hadrien Sevel
  *
  * Description:
@@ -15,14 +15,13 @@
 #define NUMBER_OF_DIGITS 9
 #define UPPER_BOUND 100
 
-/* Déclaration des fonctions */
 uint8_t *readCell(const char *cellPath, uint32_t *largeur, uint32_t *hauteur);
 int isCellEmpty(uint8_t *cell, int seuil, uint32_t *largeur, uint32_t *hauteur);
 void findNumber(uint8_t *cell, int *seuils, uint32_t *largeur, uint32_t *hauteur);
 float getRatioCommonPixels(uint8_t *cell, int chiffre,  int offsetY, int offsetX, uint32_t *largeur);
 uint8_t getPixelBitmap(int chiffre, int ligne, int colonne);
 
-/* Fonction principale */
+
 int main(int argc, const char *argv[]) {
 
   /* Vérifie le nombre d'arguments donnés */
@@ -53,12 +52,15 @@ int main(int argc, const char *argv[]) {
   uint8_t *cell = readCell(argv[1], &largeur, &hauteur);
   if (cell != NULL) {
 
-    /* Entrée dans la fonction findNumber */
     findNumber(cell, seuils, &largeur, &hauteur);
 
   } else return 1;
 
-/* Quitte le programme sans erreur */
+  /* Libère la mémoire utilisée par les tableaux */
+  free(cell);
+  free(seuils);
+
+  /* Quitte le programme sans erreur */
   return 0;
 }
 
@@ -73,7 +75,6 @@ uint8_t *readCell(const char *cellPath, uint32_t *largeur, uint32_t *hauteur) {
  *      largeur et la hauteur de l'image
  */
 
-  /* Créer la variable qui contiendra le nombre de pixels de l'image */
   uint32_t nombrePixels;
 
   /* Ouverture du fichier binaire */
@@ -90,7 +91,7 @@ uint8_t *readCell(const char *cellPath, uint32_t *largeur, uint32_t *hauteur) {
     fprintf(stderr, "Unable to read cell dimensions.\n");
     return NULL;
   }
-  /* Hauteur doit etre comprise dans [24..100] et largeur dans [16..100] */
+  /* Hauteur doit être comprise dans [24..100] et largeur dans [16..100] */
   else if (*hauteur < DigitBitmapHeight || *hauteur > UPPER_BOUND || *largeur < DigitBitmapWidth || *largeur > UPPER_BOUND) {
     fprintf(stderr, "Wrong width and/or height of the cell.\n");
     return NULL;
@@ -108,11 +109,12 @@ uint8_t *readCell(const char *cellPath, uint32_t *largeur, uint32_t *hauteur) {
     fprintf(stderr, "Not enough pixels in the cell.\n");
     return NULL;
   } else if (getc(fp) != EOF) {
+    /* Si trop de pixels, affiche un avertissement mais continue */
     fprintf(stdout, "Warning: too many pixels in the image, additional pixels ignored.\n");
   }
 
   /* Fermeture du fichier binaire*/
-  if (fclose(fp)) perror("Error when closing the file");
+  if (fclose(fp)) perror("Error when closing the binary file");
 
   /* Quitte la fonction sans erreur et retourne le pointeur cell */
   return cell;
@@ -129,7 +131,11 @@ uint8_t getPixelBitmap(int chiffre, int ligne, int colonne) {
 
 int isCellEmpty(uint8_t *cell, int seuil, uint32_t *largeur, uint32_t *hauteur) {
 
-  /* Déclaration des variables */
+/* La fonction isCellEmpty compte le nombre de pixels blancs dans la case et compare le pourcentage obtenu
+ * avec le seuil donnée en argument: retourne 1 si le pourcentage est supérieur au seuil (case vide) et
+ * retourne 0 si le pourcentage est inférieur au seuil
+ */
+
   int nombrePixelsBlancs = 0;
   const int nombrePixels = (*largeur) * (*hauteur);
 
@@ -144,7 +150,13 @@ int isCellEmpty(uint8_t *cell, int seuil, uint32_t *largeur, uint32_t *hauteur) 
 
 float getRatioCommonPixels(uint8_t *cell, int chiffre, int offsetY, int offsetX, uint32_t *largeur) {
 
-  /* Déclaration des variables */
+/* La fonction getRatioCommonPixels
+ * Arguments:
+ *    - char *cellPath: chemin du fichier binaire à ouvrir
+ *    - uint32_t *largeur & *hauteur: pointeurs sur 2 variables pour enregistrer la
+ *      largeur et la hauteur de l'image
+ */
+
   int nombrePixelsCommuns = 0;
 
   /* Boucle sur les lignes du bitmap */
@@ -164,23 +176,35 @@ float getRatioCommonPixels(uint8_t *cell, int chiffre, int offsetY, int offsetX,
 
 void findNumber(uint8_t *cell, int *seuils, uint32_t *largeur, uint32_t *hauteur) {
 
+/* La fonction findNumber appelle la fonction isCellEmpty pour savoir si la case est vide, sinon
+ * boucle sur les chiffres du sudoku, sur les déplacements verticaux et horizontaux que le bitmap
+ * doit effectuer sur l'image et appelle à chaque fois la fonction getRatioCommonPixels pour obtenir
+ * le ratio de pixels communs entre le bitmap et l'image. Enfin, elle enregistre le ratio max et
+ * écrit le chiffre correspondant et son ratio dans le fichier "CellValue.txt".
+ * Si isCellEmpty n'a pas retourné la case comme étant vide mais que aucun ratio max n'a dépassé le
+ * seuil associé, alors la case est considérée vide (notée 0 dans le fichier "CellValue.txt").
+ * Arguments:
+ *    - uint8_t *cell: tableau contenant les pixels de l'image
+ *    - int *seuils: tableau contenant les seuils
+ *    - uint32_t *largeur & *hauteur: pointeurs sur la hauteur et la largeur de l'image
+ */
+
   int number = 0;
   float ratio_max = 0;
-
 
   if (!(isCellEmpty(cell, seuils[0], largeur, hauteur))) {
 
     /* Boucle sur les 9 chiffres */
     for (int i = 1; i <= NUMBER_OF_DIGITS; i++) {
-  
+
       float ratio = 0;
-  
+
       /* Boucle sur les déplacements verticaux que le bitmap doit effectuer */
       for (int j = 0; j < (*hauteur - DigitBitmapHeight); j++) {
-  
+
         /* Boucle sur les déplacements horizontaux que le bitmap doit effectuer */
         for (int k = 0; k < (*largeur - DigitBitmapWidth); k++) {
-  
+
           /* Calcul le ratio de pixels communs pour la position courante du bitmap sur la cellule */
           ratio = getRatioCommonPixels(cell, i, j, k, largeur);
 
@@ -190,19 +214,23 @@ void findNumber(uint8_t *cell, int *seuils, uint32_t *largeur, uint32_t *hauteur
             ratio_max = ratio;
             number = i;
           }
-  
+
         }
       }
     }
   }
 
+  /* Ouvre ou crée le fichier "CellValue.txt" */
   FILE *fp = fopen("CellValue.txt", "w");
   if (fp == NULL) {
-    perror("Error when opening the binary file");
+    perror("Error when opening/creating the file CellValue.txt");
     return;
   }
+  /* Écrit le chiffre reconnu et son ratio max (0 si case vide) */
   fprintf(fp,"d:'%d', %0.4f%%\n", number, ratio_max);
-  fclose(fp);
+  /* ferme le fichier */
+  if (fclose(fp)) perror("Error when closing he file CellValue.txt");
 
+  /* Quitte la fonction sans erreur */
   return;
 }
