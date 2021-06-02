@@ -1,7 +1,9 @@
-MATLAB part/sudoku.pdf
-MATLAB part/test.m
-C part/test.c
-C part/test.exe
-C part/ocr.txt
-C part/CellValue.txt
+bitmaps
+sudoku_pictures
+C source code/ocr.txt
+sudoku.pdf
+solve.m
+test.m
+CellValue.txt
+cell.bin
 .vscode
