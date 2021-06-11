@@ -2,8 +2,6 @@
  * File: OCR.c
  * Created on 2.4.2021
  * Author: Hadrien Sevel
- *
- * Description:
  ************************************************/
 
 #include <stdio.h>
@@ -13,6 +11,7 @@
 #include "DigitBitmap.h"
 
 #define NUMBER_OF_DIGITS 9
+#define LOWER_BOUND 5
 #define UPPER_BOUND 100
 
 uint8_t *readCell(const char *cellPath, uint32_t *largeur, uint32_t *hauteur);
@@ -25,18 +24,18 @@ uint8_t getPixelBitmap(int chiffre, int ligne, int colonne);
 int main(int argc, const char *argv[]) {
 
   /* Vérifie le nombre d'arguments donnés */
-  if (argc != 12) {
+  if (argc != (NUMBER_OF_DIGITS + 3)) {
     fprintf(stderr, "Wrong number of parameters.\n");
     return 1;
   }
 
   /* Créer le tableau qui va contenir les seuils */
-  int *seuils = malloc(10 * sizeof(int));
+  int *seuils = malloc((NUMBER_OF_DIGITS + 1) * sizeof(int));
 
   /* Vérifie les seuils et les enregistre dans le tableau */
-  for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < (NUMBER_OF_DIGITS + 1); i++) {
     int seuil = atoi(argv[i+2]);
-    if (seuil < 5 || seuil > 100) {
+    if (seuil < LOWER_BOUND || seuil > UPPER_BOUND) {
       fprintf(stderr, "Wrong value for one or more thresholds.\n");
       return 1;
     } else {

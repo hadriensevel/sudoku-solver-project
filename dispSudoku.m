@@ -12,7 +12,7 @@ function dispSudoku(Initial,Solution,file,NBiterations,recLevel,duration)
 BoxSolved = (Initial ~= 0);
 
 % Crée la figure avec des axes orthonormés et cache les axes
-figure
+figure('Visible','off')
 hold on
 axis off
 axis equal
@@ -23,7 +23,7 @@ colormap([1,1,1;.9,.9,.9])
 imagesc(0.5,0.5,flip(BoxSolved))
 
 % Adapté depuis une exemple de la documentation MATLAB (fonction drawSudoku):
-% https://www.mathworks.com/help/optim/ug/solve-sudoku-puzzles-via-integer-programming-solver-based.html
+% https://www.mathworks.com/help/optim/ug/solve-sudoku-puzzles-via-integer-programming-solver-based.html#SolveSudokuExample-7
 
 % Crée les rectangles de la grille de sudoku
 rectangle('Position',[0,0,9,9],'LineWidth',1.75)
@@ -64,6 +64,10 @@ text(0,-0.25,['#iterations = ' num2str(NBiterations) ','],'FontSize',8)
 text(2.5,-0.25,['deepest recursion level = ' num2str(recLevel) ','],'FontSize',8)
 text(6.5,-0.25,['duration = ' num2str(duration) ' [s]'],'FontSize',8)
 
-% Exporte la figure au format PDF
-print('sudoku','-dpdf','-fillpage')
+% Enlève le '.jpg' du nom de fichier
+pdfname = strrep(file,'.jpg','');
+
+% Exporte la figure au format PDF et ouvre le PDF
+print(pdfname,'-dpdf','-fillpage')
+open(strcat(pdfname,'.pdf'))
 end
