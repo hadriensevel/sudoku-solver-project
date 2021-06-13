@@ -65,7 +65,7 @@ text(2.5,-0.25,['deepest recursion level = ' num2str(recLevel) ','],'FontSize',8
 text(6.5,-0.25,['duration = ' num2str(duration) ' [s]'],'FontSize',8)
 
 % Enlève le '.jpg' du nom de fichier
-pdfname = strrep(file,'.jpg','');
+pdfname = strrep(lower(file),'.jpg','');
 
 % Exporte la figure au format PDF et ouvre le PDF
 print(pdfname,'-dpdf','-fillpage')

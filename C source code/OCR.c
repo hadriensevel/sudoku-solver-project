@@ -88,11 +88,13 @@ uint8_t *readCell(const char *cellPath, uint32_t *largeur, uint32_t *hauteur) {
   size_t r2 = fread(hauteur, sizeof(uint32_t), 1, fp);
   if (!(r1 && r2)) {
     fprintf(stderr, "Unable to read cell dimensions.\n");
+    if (fclose(fp)) perror("Error when closing the binary file");
     return NULL;
   }
   /* Hauteur doit être comprise dans [24..100] et largeur dans [16..100] */
   else if (*hauteur < DigitBitmapHeight || *hauteur > UPPER_BOUND || *largeur < DigitBitmapWidth || *largeur > UPPER_BOUND) {
     fprintf(stderr, "Wrong width and/or height of the cell.\n");
+    if (fclose(fp)) perror("Error when closing the binary file");
     return NULL;
   }
 
@@ -106,6 +108,7 @@ uint8_t *readCell(const char *cellPath, uint32_t *largeur, uint32_t *hauteur) {
   size_t pixelsLus = fread(cell, sizeof cell[0], nombrePixels, fp);
   if (pixelsLus != nombrePixels) {
     fprintf(stderr, "Not enough pixels in the cell.\n");
+    if (fclose(fp)) perror("Error when closing the binary file");
     return NULL;
   } else if (getc(fp) != EOF) {
     /* Si trop de pixels, affiche un avertissement mais continue */
@@ -121,8 +124,8 @@ uint8_t *readCell(const char *cellPath, uint32_t *largeur, uint32_t *hauteur) {
 
 uint8_t getPixelBitmap(int chiffre, int ligne, int colonne) {
 
-/* La fonction getPixelBitmap retourne la valeur du pixel du bitmap pour le chiffre
- * donné, à la ligne et à la colonne données.
+/* La fonction getPixelBitmap retourne la valeur du pixel du bitmap pour le chiffre,
+ * la ligne et la colonne donnés.
  */
 
   return (DigitBitmap[chiffre - 1][ligne] >> (DigitBitmapWidth - colonne - 1)) & 1;
@@ -149,11 +152,16 @@ int isCellEmpty(uint8_t *cell, int seuil, uint32_t *largeur, uint32_t *hauteur) 
 
 float getRatioCommonPixels(uint8_t *cell, int chiffre, int offsetY, int offsetX, uint32_t *largeur) {
 
-/* La fonction getRatioCommonPixels
+/* La fonction getRatioCommonPixels compte le nombre de pixels communs (noirs & blancs) entre le bitmap
+ * et la case et calcule le ratio. Pour cela, elle boucle sur tous les pixels du bitmap et les compare
+ * avec les pixels de la case en tenant compte du décalage du bitmap sur la case (offsetX & offsetY).
+ * Pour obtenir le pixel du bitmap, elle appelle le fonction getPixelBitmap.
  * Arguments:
- *    - char *cellPath: chemin du fichier binaire à ouvrir
- *    - uint32_t *largeur & *hauteur: pointeurs sur 2 variables pour enregistrer la
- *      largeur et la hauteur de l'image
+ *    Arguments:
+ *    - uint8_t *cell: tableau contenant les pixels de l'image
+ *    - int chiffre: chiffre à utiliser pour le bitmap
+ *    - int offsetY & offsetX: décalage vertical et horizontal du bitmap sur la case
+ *    - uint32_t *largeur: largeur de la case
  */
 
   int nombrePixelsCommuns = 0;
@@ -227,8 +235,8 @@ void findNumber(uint8_t *cell, int *seuils, uint32_t *largeur, uint32_t *hauteur
   }
   /* Écrit le chiffre reconnu et son ratio max (0 si case vide) */
   fprintf(fp,"d:'%d', %0.4f%%\n", number, ratio_max);
-  /* ferme le fichier */
-  if (fclose(fp)) perror("Error when closing he file CellValue.txt");
+  /* Ferme le fichier */
+  if (fclose(fp)) perror("Error when closing the file CellValue.txt");
 
   /* Quitte la fonction sans erreur */
   return;
